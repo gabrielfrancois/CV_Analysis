@@ -1,5 +1,5 @@
 import PyPDF2
-from ollama
+import ollama
 import os
 import json
 import re
