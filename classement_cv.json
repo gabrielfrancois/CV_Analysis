@@ -1,77 +1,12 @@
 [
     {
-        "nom_fichier": "CV Elisabeth Grondin gestionnaire administrative CF.pdf",
-        "chemin": "data/CV Elisabeth Grondin gestionnaire administrative CF.pdf",
-        "note": 68.5
-    },
-    {
-        "nom_fichier": "CV SW.pdf",
-        "chemin": "data/CV SW.pdf",
-        "note": 58.3
-    },
-    {
-        "nom_fichier": "CV. MLpdf.pdf",
-        "chemin": "data/CV. MLpdf.pdf",
-        "note": 58.3
-    },
-    {
-        "nom_fichier": "CV VD.pdf",
-        "chemin": "data/CV VD.pdf",
-        "note": 57.8
-    },
-    {
-        "nom_fichier": "CV_NLABARRE.pdf",
-        "chemin": "data/CV_NLABARRE.pdf",
-        "note": 52.3
-    },
-    {
-        "nom_fichier": "CV NC. pdf.pdf",
-        "chemin": "data/CV NC. pdf.pdf",
-        "note": 45.2
-    },
-    {
-        "nom_fichier": "CV. FBpdf.pdf",
-        "chemin": "data/CV. FBpdf.pdf",
-        "note": 45.2
-    },
-    {
-        "nom_fichier": "CV DL.pdf",
-        "chemin": "data/CV DL.pdf",
-        "note": 35.5
-    },
-    {
-        "nom_fichier": "CV KM 2026 - SECRETAIRE ADMINISTRATIVE.pdf",
-        "chemin": "data/CV KM 2026 - SECRETAIRE ADMINISTRATIVE.pdf",
-        "note": 25.5
-    },
-    {
-        "nom_fichier": "CV VV.pdf",
-        "chemin": "data/CV VV.pdf",
-        "note": 25.5
-    },
-    {
-        "nom_fichier": "CV LF.pdf",
-        "chemin": "data/CV LF.pdf",
+        "nom_fichier": "Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
+        "chemin": "data/Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
         "note": 0.0
     },
     {
-        "nom_fichier": "CV AC.pdf",
-        "chemin": "data/CV AC.pdf",
-        "note": 0.0
-    },
-    {
-        "nom_fichier": "Madame Gonçalves - curriculum vitae.pdf",
-        "chemin": "data/Madame Gonçalves - curriculum vitae.pdf",
-        "note": 0.0
-    },
-    {
-        "nom_fichier": "CV RC.pdf",
-        "chemin": "data/CV RC.pdf",
-        "note": 0.0
-    },
-    {
-        "nom_fichier": "CV -GLB gestionnaire RH spécialisée formation.pdf",
-        "chemin": "data/CV -GLB gestionnaire RH spécialisée formation.pdf",
+        "nom_fichier": "dossier_de_candidature_MCF_260565___Université_de_Nantes.pdf",
+        "chemin": "data/dossier_de_candidature_MCF_260565___Université_de_Nantes.pdf",
         "note": 0.0
     }
 ]
