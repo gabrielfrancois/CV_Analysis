@@ -1,13 +1,15 @@
-import PyPDF2
-import ollama
-import os
 import json
+import os
 import re
 import subprocess
+
+import ollama
+import PyPDF2
+
 from prints import *
 
+MODEL_ID = "llama3.1:8b"  # Ollama model tag
 
-MODEL_ID = "mistral-nemo" # Ollama model tag
 
 def extraire_texte_pdf(chemin_pdf):
     """
@@ -20,7 +22,7 @@ def extraire_texte_pdf(chemin_pdf):
 
     texte_complet = ""
     try:
-        with open(chemin_pdf, 'rb') as fichier:
+        with open(chemin_pdf, "rb") as fichier:
             lecteur = PyPDF2.PdfReader(fichier)
             for page in lecteur.pages:
                 texte_page = page.extract_text()
@@ -30,6 +32,7 @@ def extraire_texte_pdf(chemin_pdf):
     except Exception as e:
         print(red(f"❌ Impossible de lire {chemin_pdf}: {e}"))
         return ""
+
 
 def evaluer_cv(cv_text):
     """
@@ -80,21 +83,22 @@ def evaluer_cv(cv_text):
             model=MODEL_ID,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": user_prompt},
             ],
-            options={"temperature": 0.0}
+            options={"temperature": 0.0},
         )
 
         # Extract content from Ollama response structure
-        contenu = response['message']['content'].strip()
+        contenu = response["message"]["content"].strip()
 
         match = re.search(r"(\d+[\.,]?\d*)", contenu)
         if match:
-            return float(match.group(1).replace(',', '.'))
+            return float(match.group(1).replace(",", "."))
         return 0.0
     except Exception as e:
         print(f"❌ Erreur API : {e}")
         return 0.0
+
 
 def main():
     # Configuration
@@ -107,13 +111,14 @@ def main():
         return
 
     dossier_data = "data"
+    os.makedirs(dossier_data, exist_ok=True)
     resultats = []
 
     if not os.path.exists(dossier_data):
         print(f"Erreur : Le dossier '{dossier_data}' n'existe pas.")
         return
 
-    fichiers_pdf = [f for f in os.listdir(dossier_data) if f.lower().endswith('.pdf')]
+    fichiers_pdf = [f for f in os.listdir(dossier_data) if f.lower().endswith(".pdf")]
 
     if not fichiers_pdf:
         print("Aucun fichier PDF trouvé dans le dossier data.")
@@ -128,15 +133,13 @@ def main():
         texte = extraire_texte_pdf(chemin_complet)
         if texte:
             note = evaluer_cv(texte)
-            resultats.append({
-                "nom_fichier": nom_fichier,
-                "chemin": chemin_complet,
-                "note": note
-            })
+            resultats.append(
+                {"nom_fichier": nom_fichier, "chemin": chemin_complet, "note": note}
+            )
             print(f"-> Note : {note}/100")
 
     # (les meilleurs en premier)
-    resultats_tries = sorted(resultats, key=lambda x: x['note'], reverse=True)
+    resultats_tries = sorted(resultats, key=lambda x: x["note"], reverse=True)
 
     # Sauvegarde en JSON
     with open("classement_cv.json", "w", encoding="utf-8") as f:
@@ -149,13 +152,14 @@ def main():
         json.dump(resultats_tries, f, indent=4, ensure_ascii=False)
 
     print("\n✅ Analyse terminée !")
-    print(f"Le classement a été sauvegardé dans 'classement_cv.json'.")
+    print(green(f"Le classement a été sauvegardé dans 'classement_cv.json'."))
 
     # Commande magique pour ouvrir le fichier automatiquement sur Mac
     try:
         subprocess.run(["open", "-a", "TextEdit", "classement_cv.json"])
     except Exception as e:
         print(f"Erreur lors de l'ouverture du fichier : {e}")
+
 
 if __name__ == "__main__":
     main()
