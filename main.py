@@ -1,13 +1,23 @@
 import PyPDF2
-from openai import OpenAI
+from ollama
 import os
 import json
 import re
 import subprocess
 from prints import *
 
+
+MODEL_ID = "mistral-nemo" # Ollama model tag
+
 def extraire_texte_pdf(chemin_pdf):
-    """Extrait le texte brut d'un fichier PDF."""
+    """
+    Extracts raw text from a PDF file.
+        Args:
+            chemin_pdf (str): Path to the PDF file.
+        Returns:
+            str: Extracted text content.
+    """
+
     texte_complet = ""
     try:
         with open(chemin_pdf, 'rb') as fichier:
@@ -21,8 +31,15 @@ def extraire_texte_pdf(chemin_pdf):
         print(red(f"❌ Impossible de lire {chemin_pdf}: {e}"))
         return ""
 
-def evaluer_cv(client, cv_text):
-    """Envoie le texte à l'IA et récupère une note numérique."""
+def evaluer_cv(cv_text):
+    """
+    Evaluates a resume using LLM and returns a score.
+    Args:
+        cv_text (str): The raw text extracted from the PDF.
+    Returns:
+        float: The evaluation score out of 100.
+    """
+
     system_prompt = """
     Tu es un recruteur expert, froid et extrêmement exigeant pour SROPL'Form.
     CONTEXTE : SROPL'Form est un organisme de formation professionnel continu dédié spécifiquement aux orthophonistes et aux professionnels de santé.
@@ -58,19 +75,19 @@ def evaluer_cv(client, cv_text):
     user_prompt = f"Contenu du CV :\n{cv_text}\n\nNote sur 100 :"
 
     try:
-        response = client.chat.completions.create(
-            model="johnlockejrr",
+        # Native Ollama API call
+        response = ollama.chat(
+            model=MODEL_ID,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.0,
-            max_tokens=10
+            options={"temperature": 0.0}
         )
 
-        # Nettoyage de la réponse pour ne garder que le chiffre
-        contenu = response.choices[0].message.content.strip()
-        # On utilise une expression régulière pour trouver le premier nombre dans la réponse
+        # Extract content from Ollama response structure
+        contenu = response['message']['content'].strip()
+
         match = re.search(r"(\d+[\.,]?\d*)", contenu)
         if match:
             return float(match.group(1).replace(',', '.'))
@@ -81,7 +98,14 @@ def evaluer_cv(client, cv_text):
 
 def main():
     # Configuration
-    client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+    print(yellow(f"Vérification/Téléchargement du modèle {MODEL_ID} via Ollama..."))
+    try:
+        # Downloads if missing, resolves quickly if already present
+        ollama.pull(MODEL_ID)
+    except Exception as e:
+        print(red(f"❌ Erreur lors du pull Ollama : {e}"))
+        return
+
     dossier_data = "data"
     resultats = []
 
@@ -103,7 +127,7 @@ def main():
 
         texte = extraire_texte_pdf(chemin_complet)
         if texte:
-            note = evaluer_cv(client, texte)
+            note = evaluer_cv(texte)
             resultats.append({
                 "nom_fichier": nom_fichier,
                 "chemin": chemin_complet,

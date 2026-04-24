@@ -8,6 +8,7 @@ dependencies = [
     "langchain>=0.3.27",
     "langchain-experimental>=0.3.4",
     "mlx>=0.29.3",
+    "ollama>=0.6.1",
     "openai>=2.21.0",
     "pypdf2>=3.0.1",
 ]
