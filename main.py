@@ -10,7 +10,6 @@ from prints import *
 
 MODEL_ID = "llama3.1:8b"  # Ollama model tag
 
-
 def extraire_texte_pdf(chemin_pdf):
     """
     Extracts raw text from a PDF file.
@@ -146,12 +145,6 @@ def main():
 
     print("\n✅ Analyse terminée !")
     print(f"Le classement a été sauvegardé dans 'classement_cv.json'.")
-
-    with open("classement_cv.json", "w", encoding="utf-8") as f:
-        json.dump(resultats_tries, f, indent=4, ensure_ascii=False)
-
-    print("\n✅ Analyse terminée !")
-    print(green(f"Le classement a été sauvegardé dans 'classement_cv.json'."))
 
     # Commande magique pour ouvrir le fichier automatiquement sur Mac
     try:
