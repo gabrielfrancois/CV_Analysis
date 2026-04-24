@@ -44,7 +44,7 @@ def evaluer_cv(cv_text):
 
     system_prompt = EVALUATION_CRITERION
 
-    user_prompt = f"Contenu du CV :\n{cv_text}\n\nAnalyse le profil :"
+    user_prompt = f"CONTENU DU CV :\n{cv_text}\n\nREMPLIS LE FORMAT : Analyse par critère, Synthèse, puis SCORE: [note]."
 
     try:
         response = ollama.chat(
@@ -53,26 +53,25 @@ def evaluer_cv(cv_text):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            options={"temperature": 0.0},
+            options={
+                "temperature": 0.1, 
+                "num_ctx": 12288    
+            },
         )
-
-        # Extract content from Ollama response structure
         contenu = response["message"]["content"].strip()
-
-        # Extraction de la note
-        match_note = re.search(r"SCORE:\s*(\d+[\.,]?\d*)", contenu)
+    
+        match_note = re.search(r"SCORE:\s*(\d+[\.,]?\d*)", contenu, re.IGNORECASE)
         note = float(match_note.group(1).replace(",", ".")) if match_note else 0.0
-
-        # Extraction de la justification
-        justification = "Justification non trouvée"
-        if "JUSTIFICATION:" in contenu:
-            justification = contenu.split("JUSTIFICATION:")[1].strip()
-
+    
+        if match_note:
+            justification = contenu[:match_note.start()].strip()
+        else:
+            justification = contenu
+    
         return note, justification
-
+    
     except Exception as e:
-        print(red(f"❌ Erreur API : {e}"))
-        return 0.0, f"Erreur lors de l'évaluation : {str(e)}"
+        return 0.0, f"Erreur : {str(e)}"
 
 
 def main():
