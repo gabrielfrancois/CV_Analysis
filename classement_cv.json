@@ -1,4 +1,14 @@
-[
+ncé[
+    {
+        "nom_fichier": "main_gem.pdf",
+        "chemin": "data/main_gem.pdf",
+        "note": 100.0
+    },
+    {
+        "nom_fichier": "MdC_Nantes.pdf",
+        "chemin": "data/MdC_Nantes.pdf",
+        "note": 100.0
+    },
     {
         "nom_fichier": "Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
         "chemin": "data/Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
