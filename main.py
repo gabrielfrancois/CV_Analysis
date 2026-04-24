@@ -78,7 +78,6 @@ def evaluer_cv(cv_text):
     user_prompt = f"Contenu du CV :\n{cv_text}\n\nNote sur 100 :"
 
     try:
-        # Native Ollama API call
         response = ollama.chat(
             model=MODEL_ID,
             messages=[
@@ -114,8 +113,8 @@ def main():
     os.makedirs(dossier_data, exist_ok=True)
     resultats = []
 
-    if not os.path.exists(dossier_data):
-        print(f"Erreur : Le dossier '{dossier_data}' n'existe pas.")
+    if not os.listdir(dossier_data):
+        print(red(f"Le dossier '{dossier_data}' est vide. Ajoute des fichiers PDF."))
         return
 
     fichiers_pdf = [f for f in os.listdir(dossier_data) if f.lower().endswith(".pdf")]
