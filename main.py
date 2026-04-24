@@ -44,7 +44,7 @@ def evaluer_cv(cv_text):
 
     system_prompt = EVALUATION_CRITERION
 
-    user_prompt = f"Contenu du CV :\n{cv_text}\n\nNote sur 100 :"
+    user_prompt = f"Contenu du CV :\n{cv_text}\n\nAnalyse le profil :"
 
     try:
         response = ollama.chat(
@@ -59,13 +59,20 @@ def evaluer_cv(cv_text):
         # Extract content from Ollama response structure
         contenu = response["message"]["content"].strip()
 
-        match = re.search(r"(\d+[\.,]?\d*)", contenu)
-        if match:
-            return float(match.group(1).replace(",", "."))
-        return 0.0
+        # Extraction de la note
+        match_note = re.search(r"SCORE:\s*(\d+[\.,]?\d*)", contenu)
+        note = float(match_note.group(1).replace(",", ".")) if match_note else 0.0
+
+        # Extraction de la justification
+        justification = "Justification non trouvée"
+        if "JUSTIFICATION:" in contenu:
+            justification = contenu.split("JUSTIFICATION:")[1].strip()
+
+        return note, justification
+
     except Exception as e:
-        print(f"❌ Erreur API : {e}")
-        return 0.0
+        print(red(f"❌ Erreur API : {e}"))
+        return 0.0, f"Erreur lors de l'évaluation : {str(e)}"
 
 
 def main():
@@ -100,23 +107,26 @@ def main():
 
         texte = extraire_texte_pdf(chemin_complet)
         if texte:
-            note = evaluer_cv(texte)
-            resultats.append(
-                {"nom_fichier": nom_fichier, "chemin": chemin_complet, "note": note}
-            )
+            note, justification = evaluer_cv(texte)
+            
+            resultats.append({
+                "nom_fichier": nom_fichier,
+                "chemin": chemin_complet,
+                "note": note,
+                "justification": justification 
+            })
             print(f"-> Note : {note}/100")
+            short_js = (justification[:75] + '...') if len(justification) > 75 else justification
+            print(cyan(f"   Avis : {short_js}"))
 
-    # (les meilleurs en premier)
     resultats_tries = sorted(resultats, key=lambda x: x["note"], reverse=True)
 
-    # Sauvegarde en JSON
     with open("classement_cv.json", "w", encoding="utf-8") as f:
         json.dump(resultats_tries, f, indent=4, ensure_ascii=False)
 
     print("\n✅ Analyse terminée !")
     print(f"Le classement a été sauvegardé dans 'classement_cv.json'.")
 
-    # Commande magique pour ouvrir le fichier automatiquement sur Mac
     try:
         subprocess.run(["open", "-a", "TextEdit", "classement_cv.json"])
     except Exception as e:
