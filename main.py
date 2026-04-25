@@ -46,7 +46,7 @@ def evaluer_cv(cv_text):
 
     system_prompt = EVALUATION_CRITERION
 
-    user_prompt = f"CONTENU DU CV :\n{cv_text}\n\nREMPLIS LE FORMAT : Analyse par critère, Synthèse, puis SCORE: [note]."
+    user_prompt = f"CONTENU DU CV :\n{cv_text}\n\nÉvalue ce CV en utilisant STRICTEMENT le 'FORMAT OBLIGATOIRE'."
 
     try:
         response = ollama.chat(

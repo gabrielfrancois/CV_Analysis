@@ -1,22 +1,14 @@
-ncé[
+[
     {
         "nom_fichier": "main_gem.pdf",
         "chemin": "data/main_gem.pdf",
-        "note": 100.0
-    },
-    {
-        "nom_fichier": "MdC_Nantes.pdf",
-        "chemin": "data/MdC_Nantes.pdf",
-        "note": 100.0
+        "note": 90.0,
+        "justification": "Analyse par critère :\n\n* Critère 1 : Expérience en enseignement\n\t+ Le candidat a de l'expérience en enseignement en licence et master de Génie Civil.\n\t+ Il a utilisé des outils numériques pour la pédagogie afin de proposer des ressources supplémentaires.\n\t+ Il est responsable pédagogique de la 4ème année depuis deux ans et a participé activement aux réflexions sur les maquettes de formation.\n* Critère 2 : Expérience en recherche\n\t+ Le candidat a une solide expérience en modélisation mathématique pour la mécanique et en analyse et modélisation numérique.\n\t+ Il a publié plusieurs articles dans des revues à comité de lecture.\n\t+ Ses travaux de recherche sont pertinents et ont des applications potentielles dans le domaine du Génie Civil.\n* Critère 3 : Intégration au laboratoire\n\t+ Le candidat a identifié des points d'accroche avec différentes unités thématiques de recherche au sein du laboratoire GeM.\n\t+ Il pourrait contribuer à la modélisation de la rupture des matériaux fragiles et quasi-fragiles, ainsi qu'à la reformulation compatible avec la dynamique des ondes de l'endommagement à gradient.\n* Critère 4 : Capacité à travailler en équipe\n\t+ Le candidat a participé à des tâches collectives au sein de son département d'enseignement précédent.\n\t+ Il est prêt à s'investir dans le département de physique et à participer activement aux réflexions sur les maquettes de formation.\n\nSynthèse :\n\nLe candidat présente une solide expérience en enseignement, notamment en licence et master de Génie Civil. Il a également une expérience avérée en recherche, avec plusieurs publications dans des revues à comité de lecture. Ses travaux de recherche sont pertinents et ont des applications potentielles dans le domaine du Génie Civil. Le candidat a identifié des points d'accroche avec différentes unités thématiques de recherche au sein du laboratoire GeM, ce qui pourrait faciliter son intégration au sein de l'équipe. Enfin, il est prêt à s'investir dans le département de physique et à participer activement aux réflexions sur les maquettes de formation.\n\nScore : [note]"
     },
     {
         "nom_fichier": "Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
         "chemin": "data/Présentation synthétique_Sihem_BRAHIMI_1221Nante.pdf",
-        "note": 0.0
-    },
-    {
-        "nom_fichier": "dossier_de_candidature_MCF_260565___Université_de_Nantes.pdf",
-        "chemin": "data/dossier_de_candidature_MCF_260565___Université_de_Nantes.pdf",
-        "note": 0.0
+        "note": 90.0,
+        "justification": "Analyse par critère :\n\n1. Recherche :\n\t* Modélisation multi-échelle : 9/10\n\t* Méthodes numériques avancées : 8,5/10\n\t* Durabilité et géomécanique : 9/10\n2. Enseignement :\n\t* Structures, mécanique, BIM : 8,5/10\n\t* Formation licence → master : 9/10\n\nSynthèse :\n\nLe candidat présente un projet scientifique solide avec une spécialisation dans la modélisation multi-échelle et les méthodes numériques avancées, ainsi qu'une expertise en durabilité et géomécanique. Son expérience d'enseignement est également pertinente pour le poste, avec des compétences dans l'enseignement de sujets tels que structures, mécanique et BIM, ainsi qu'une capacité à enseigner efficacement aux niveaux licence et master.\n\nScore : 8,75/10"
     }
 ]
