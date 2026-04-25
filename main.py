@@ -48,39 +48,39 @@ def evaluer_cv(cv_text):
     system_prompt = EVALUATION_CRITERION
 
     user_prompt = f"""Voici le CV du candidat :
---- DÉBUT DU CV ---
-{cv_text}
---- FIN DU CV ---
+    --- DÉBUT DU CV ---
+    {cv_text}
+    --- FIN DU CV ---
 
-MISSION :
-Évalue ce CV de manière juste et professionnelle.
-RÈGLE ABSOLUE : Il est STRICTEMENT INTERDIT de dire "il n'y a pas assez d'informations". Tu DOIS fouiller dans le texte (issu d'un scan OCR) et faire des déductions logiques pour évaluer le candidat. Valorise ce qui est présent.
+    MISSION :
+    Évalue ce CV en tant que membre d'un jury académique JUSTE, ANALYTIQUE, mais TRÈS EXIGEANT SUR L'EXCELLENCE SCIENTIFIQUE.
 
-Copie-colle EXACTEMENT le formulaire ci-dessous. Remplace les [X] par tes notes (des nombres) et les [...] par ton analyse (2 phrases max).
+    RÈGLES ABSOLUES :
+    1. LE PRINCIPE DE RÉALITÉ : Ce qui n'est pas écrit dans le CV n'existe pas. Tu n'as pas le droit d'écrire "il manque des informations". Si une compétence ou un détail n'y est pas, tu considères simplement que le candidat ne l'a pas fait, et tu évalues factuellement ce qui est présent.
+    2. LE DISCERNEMENT : Sois capable de donner une excellente note (35+) à un vrai chercheur publiant dans des revues majeures (comme Q1/Q2), et une mauvaise note (moins de 20) à un profil ne publiant essentiellement que dans des REVUES MINEURS (comme Q3/Q4).
+    3. L'OBJECTIVITÉ : Pour l'enseignement, évalue factuellement. Si le profil est junior, c'est normal qu'il n'ait pas dirigé de Master, juge la qualité de ce qu'il a déjà fait.
 
-Recherche:
-- Note: [X]/25
-- Analyse: [...]
+    Copie-colle EXACTEMENT le formulaire ci-dessous et remplace les [X] par les notes et [...] par ton analyse (2 phrases max).
 
-Enseignement:
-- Note: [X]/25
-- Analyse: [...]
+    Recherche (Nombre, QUALITÉ et prestige des publications. Valorise FORTEMENT les revues internationales comme Q1/Q2. Pénalise FORTEMENT les profils limités au Q3/Q4. Adéquation profil, colloques, projets):
+    - Note: [X]/40
+    - Analyse: [...]
 
-Publications:
-- Note: [X]/25
-- Analyse: [...]
+    Enseignement (Adéquation profil, volume, création de contenus, encadrement. Ajuste tes attentes si c'est un profil junior, mais évalue factuellement ce qui est fait):
+    - Note: [X]/40
+    - Analyse: [...]
 
-Niveau de langue (Ignore les coquilles OCR, juge le vocabulaire et la syntaxe):
-- Note: [X]/15
-- Analyse: [...]
+    Qualité du dossier (Clarté, rigueur, qualité du français. Ignore les bugs de l'OCR):
+    - Note: [X]/10
+    - Analyse: [...]
 
-Rayonnement:
-- Note: [X]/10
-- Analyse: [...]
+    Formation initiale (Qualité de la formation, adéquation au profil Génie Civil / Mécanique):
+    - Note: [X]/10
+    - Analyse: [...]
 
-Points forts: [...]
-Faiblesses: [...]
-"""
+    Points forts: [...]
+    Faiblesses: [...]
+    """
 
     try:
         response = ollama.chat(
@@ -89,44 +89,40 @@ Faiblesses: [...]
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            options={
-                "temperature": 0.15,
-            },
+            options={"temperature": 0.15},
         )
 
         analyse = response["message"]["content"].strip()
         print("\n--- ANALYSE ---\n", analyse)
 
-        score_prompt = f"""
-        Voici une évaluation :
-        {analyse}
-        
-        MISSION :
-        Cherche les notes sous la forme "Note: X/25", "Note: X/15" et "Note: X/10".
-        Additionne ces 5 nombres mathématiquement.
-        Renvoie UNIQUEMENT le nombre final de la somme (ex: 68.5). Aucun texte.
-        Si tu ne trouves pas les notes, renvoie 0.
-        """
+        notes_trouvees = re.findall(r"(\d+(?:[\.,]\d+)?)\s*/\s*(?:40|10)", analyse)
 
-        response_score = ollama.chat(
-            model=MODEL_ID,
-            messages=[
-                {"role": "user", "content": score_prompt}
-            ],
-            options={"temperature": 0.0, "num_predict": 100},
-        )
-
-        contenu_score = response_score["message"]["content"].strip()
-        print("\n--- SCORE RAW ---\n", contenu_score)
-
-        # Extract only the numbers, handle float parsing
-        match = re.search(r"(\d{1,3}(?:[\.,]\d+)?)", contenu_score)
-        note = float(match.group(1).replace(",", ".")) if match else 0.0
-
-        if match:
-            note = float(match.group(1).replace(",", "."))
+        if len(notes_trouvees) == 4:
+            note = sum(float(n.replace(',', '.')) for n in notes_trouvees)
+            print(green(f"✅ Python a calculé la note exacte (4/4 critères trouvés) : {note}/100"))
         else:
-            note = 0.0
+            print(yellow(f"⚠️ Format imprécis ({len(notes_trouvees)}/4 notes). Passage au calcul par LLM..."))
+            
+            score_prompt = f"""
+            Voici une évaluation :
+            {analyse}
+            
+            MISSION :
+            Calcule la note totale sur 100 à partir des éléments ci-dessus.
+            Renvoie UNIQUEMENT le chiffre final sans texte ni calculs écrits.
+            """
+
+            response_score = ollama.chat(
+                model=MODEL_ID,
+                messages=[{"role": "user", "content": score_prompt}],
+                options={"temperature": 0.0, "num_predict": 50},
+            )
+
+            contenu_score = response_score["message"]["content"].strip()
+            print(cyan(f"--- SCORE RAW (LLM Fallback) ---\n{contenu_score}"))
+
+            match = re.search(r"(\d{1,3}(?:[\.,]\d+)?)", contenu_score)
+            note = float(match.group(1).replace(",", ".")) if match else 0.0
 
         return note, analyse
     
