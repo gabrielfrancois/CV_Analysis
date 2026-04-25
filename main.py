@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+import platform
 
 import ollama
 import PyPDF2
@@ -46,7 +47,24 @@ def evaluer_cv(cv_text):
 
     system_prompt = EVALUATION_CRITERION
 
-    user_prompt = f"CONTENU DU CV :\n{cv_text}\n\nÉvalue ce CV en utilisant STRICTEMENT le 'FORMAT OBLIGATOIRE'."
+    user_prompt = f"""Voici le CV du candidat :
+    --- DÉBUT DU CV ---
+    {cv_text}
+    --- FIN DU CV ---
+
+    MISSION :
+    Tu dois évaluer ce CV en remplissant EXACTEMENT le formulaire ci-dessous.
+    Interdiction de faire des tableaux. Copie le texte ci-dessous et remplace les crochets par ton texte (2 phrases max) et les "X" par tes notes. Si l'info n'y est pas, essaie tout de même de l'évaluer avec ce dont tu dispose et de mettre une note sur le barême donné.
+
+    Recherche (nombre, qualité et originalité des publications et adéquation au profil): [Analyse] -> Note: X/25
+    Enseignement (Responsabilité de modules, création de contenu, adéquation au profil): [Analyse] -> Note: X/25
+    Publications: [Analyse] -> Note: X/25
+    Niveau de langue (La mise en page n'est pasprise en compte, on se concentre sur le niveau de langue et la clareté du dossier): [Analyse] -> Note: X/15
+    Rayonnement (participation à des colloques et niveau des colloques): [Analyse] -> Note: X/10
+
+    Points forts: [Liste]
+    Faiblesses: [Liste]
+    """
 
     try:
         response = ollama.chat(
@@ -64,15 +82,14 @@ def evaluer_cv(cv_text):
         print("\n--- ANALYSE ---\n", analyse)
 
         score_prompt = f"""
-        Extrais UNIQUEMENT la note finale de cette évaluation.
-        
-        Règles absolues :
-        - Renvoie uniquement des chiffres (ex: 85).
-        - Si la note est sur 20 (ex: 18/20), multiplie la par 5 pour la mettre sur 100 (ex: 90).
-        - Aucun texte, aucune explication.
-
-        Évaluation :
+        Voici une évaluation :
         {analyse}
+        
+        MISSION :
+        Cherche les notes sous la forme "Note: X/25", "Note: X/15" et "Note: X/10".
+        Additionne ces 5 nombres mathématiquement.
+        Renvoie UNIQUEMENT le nombre final de la somme (ex: 68.5). Aucun texte.
+        Si tu ne trouves pas les notes, renvoie 0.
         """
 
         response_score = ollama.chat(
@@ -80,7 +97,7 @@ def evaluer_cv(cv_text):
             messages=[
                 {"role": "user", "content": score_prompt}
             ],
-            options={"temperature": 0.0, "num_predict": 800},
+            options={"temperature": 0.0, "num_predict": 100},
         )
 
         contenu_score = response_score["message"]["content"].strip()
@@ -152,9 +169,14 @@ def main():
     print(f"Le classement a été sauvegardé dans 'classement_cv.json'.")
 
     try:
-        subprocess.run(["open", "-a", "TextEdit", "classement_cv.json"])
+        if platform.system() == 'Darwin':
+            subprocess.run(["open", "-a", "TextEdit", "classement_cv.json"])
+        elif platform.system() == 'Windows':
+            os.startfile("classement_cv.json")
+        else:
+            print("Pour voir les résultats (Linux) : cat classement_cv.json")
     except Exception as e:
-        print(f"Erreur lors de l'ouverture du fichier : {e}")
+        print(f"Fichier généré, mais impossible de l'ouvrir automatiquement : {e}")
 
 
 if __name__ == "__main__":
