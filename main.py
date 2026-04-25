@@ -48,23 +48,39 @@ def evaluer_cv(cv_text):
     system_prompt = EVALUATION_CRITERION
 
     user_prompt = f"""Voici le CV du candidat :
-    --- DÉBUT DU CV ---
-    {cv_text}
-    --- FIN DU CV ---
+--- DÉBUT DU CV ---
+{cv_text}
+--- FIN DU CV ---
 
-    MISSION :
-    Tu dois évaluer ce CV en remplissant EXACTEMENT le formulaire ci-dessous.
-    Interdiction de faire des tableaux. Copie le texte ci-dessous et remplace les crochets par ton texte (2 phrases max) et les "X" par tes notes. Si l'info n'y est pas, essaie tout de même de l'évaluer avec ce dont tu dispose et de mettre une note sur le barême donné.
+MISSION :
+Évalue ce CV de manière juste et professionnelle.
+RÈGLE ABSOLUE : Il est STRICTEMENT INTERDIT de dire "il n'y a pas assez d'informations". Tu DOIS fouiller dans le texte (issu d'un scan OCR) et faire des déductions logiques pour évaluer le candidat. Valorise ce qui est présent.
 
-    Recherche (nombre, qualité et originalité des publications et adéquation au profil): [Analyse] -> Note: X/25
-    Enseignement (Responsabilité de modules, création de contenu, adéquation au profil): [Analyse] -> Note: X/25
-    Publications: [Analyse] -> Note: X/25
-    Niveau de langue (La mise en page n'est pasprise en compte, on se concentre sur le niveau de langue et la clareté du dossier): [Analyse] -> Note: X/15
-    Rayonnement (participation à des colloques et niveau des colloques): [Analyse] -> Note: X/10
+Copie-colle EXACTEMENT le formulaire ci-dessous. Remplace les [X] par tes notes (des nombres) et les [...] par ton analyse (2 phrases max).
 
-    Points forts: [Liste]
-    Faiblesses: [Liste]
-    """
+Recherche:
+- Note: [X]/25
+- Analyse: [...]
+
+Enseignement:
+- Note: [X]/25
+- Analyse: [...]
+
+Publications:
+- Note: [X]/25
+- Analyse: [...]
+
+Niveau de langue (Ignore les coquilles OCR, juge le vocabulaire et la syntaxe):
+- Note: [X]/15
+- Analyse: [...]
+
+Rayonnement:
+- Note: [X]/10
+- Analyse: [...]
+
+Points forts: [...]
+Faiblesses: [...]
+"""
 
     try:
         response = ollama.chat(
