@@ -16,9 +16,25 @@ notify() {
 
 echo "=== Démarrage du processus d'Analyse CV ==="
 
-# 3. Lancer ton application Python
-echo "🚀 Lancement de l'analyse..."
-notify "Exécution en cours..." "uv run -m main"
+# Vérifier si Homebrew est installé
+if ! command -v brew &> /dev/null; then
+    notify "Erreur critique" "Homebrew n'est pas installé."
+    echo "❌ Erreur : Homebrew est introuvable. Installez-le d'abord (https://brew.sh/)."
+    exit 1
+fi
+
+# Vérifier si Ollama est installé
+if ! command -v ollama &> /dev/null; then
+    echo "⚠️ Ollama n'est pas installé. Installation via Homebrew en cours..."
+    notify "Installation" "Téléchargement d'Ollama..."
+    brew install ollama
+fi
+
+echo "✅ Démarrage du serveur Ollama..."
+notify "Info" "Lancement d'Ollama en arrière-plan..."
+# On lance ollama serve en tâche de fond (&) pour ne pas bloquer la suite du script
+ollama serve > /dev/null 2>&1 &
+sleep 3
 
 # Lancer la commande uv
 uv run -m main

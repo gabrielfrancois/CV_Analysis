@@ -35,11 +35,13 @@ def extraire_texte_pdf(chemin_pdf):
 
 def evaluer_cv(cv_text):
     """
-    Evaluates a resume using LLM and returns a score.
+    Evaluates a resume in two steps: reasoning generation and score extraction.
+
     Args:
-        cv_text (str): The raw text extracted from the PDF.
+        cv_text (str): Raw text extracted from the PDF.
+
     Returns:
-        float: The evaluation score out of 100.
+        tuple: (float: Final score out of 100, str: Detailed analysis).
     """
 
     system_prompt = EVALUATION_CRITERION
@@ -54,21 +56,46 @@ def evaluer_cv(cv_text):
                 {"role": "user", "content": user_prompt},
             ],
             options={
-                "temperature": 0.1, 
-                "num_ctx": 12288    
+                "temperature": 0.15,
             },
         )
-        contenu = response["message"]["content"].strip()
-    
-        match_note = re.search(r"SCORE:\s*(\d+[\.,]?\d*)", contenu, re.IGNORECASE)
-        note = float(match_note.group(1).replace(",", ".")) if match_note else 0.0
-    
-        if match_note:
-            justification = contenu[:match_note.start()].strip()
+
+        analyse = response["message"]["content"].strip()
+        print("\n--- ANALYSE ---\n", analyse)
+
+        score_prompt = f"""
+        Extrais UNIQUEMENT la note finale de cette évaluation.
+        
+        Règles absolues :
+        - Renvoie uniquement des chiffres (ex: 85).
+        - Si la note est sur 20 (ex: 18/20), multiplie la par 5 pour la mettre sur 100 (ex: 90).
+        - Aucun texte, aucune explication.
+
+        Évaluation :
+        {analyse}
+        """
+
+        response_score = ollama.chat(
+            model=MODEL_ID,
+            messages=[
+                {"role": "user", "content": score_prompt}
+            ],
+            options={"temperature": 0.0, "num_predict": 800},
+        )
+
+        contenu_score = response_score["message"]["content"].strip()
+        print("\n--- SCORE RAW ---\n", contenu_score)
+
+        # Extract only the numbers, handle float parsing
+        match = re.search(r"(\d{1,3}(?:[\.,]\d+)?)", contenu_score)
+        note = float(match.group(1).replace(",", ".")) if match else 0.0
+
+        if match:
+            note = float(match.group(1).replace(",", "."))
         else:
-            justification = contenu
-    
-        return note, justification
+            note = 0.0
+
+        return note, analyse
     
     except Exception as e:
         return 0.0, f"Erreur : {str(e)}"
@@ -76,7 +103,7 @@ def evaluer_cv(cv_text):
 
 def main():
     # Configuration
-    print(yellow(f"Vérification/Téléchargement du modèle {MODEL_ID} via Ollama..."))
+    print(blue(f"Vérification/Téléchargement du modèle {MODEL_ID} via Ollama..."))
     try:
         # Downloads if missing, resolves quickly if already present
         ollama.pull(MODEL_ID)
@@ -114,16 +141,14 @@ def main():
                 "note": note,
                 "justification": justification 
             })
-            print(f"-> Note : {note}/100")
-            short_js = (justification[:75] + '...') if len(justification) > 75 else justification
-            print(cyan(f"   Avis : {short_js}"))
+            print(green(f"-> Note : {note}/100"))
 
     resultats_tries = sorted(resultats, key=lambda x: x["note"], reverse=True)
 
     with open("classement_cv.json", "w", encoding="utf-8") as f:
         json.dump(resultats_tries, f, indent=4, ensure_ascii=False)
 
-    print("\n✅ Analyse terminée !")
+    print(green("\n Analyse terminée !"))
     print(f"Le classement a été sauvegardé dans 'classement_cv.json'.")
 
     try:
