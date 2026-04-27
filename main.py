@@ -5,7 +5,8 @@ import subprocess
 import platform
 
 import ollama
-import PyPDF2
+# import PyPDF2
+import fitz 
 
 from prints import *
 
@@ -22,12 +23,10 @@ def extraire_texte_pdf(chemin_pdf):
 
     texte_complet = ""
     try:
-        with open(chemin_pdf, "rb") as fichier:
-            lecteur = PyPDF2.PdfReader(fichier)
-            for page in lecteur.pages:
-                texte_page = page.extract_text()
-                if texte_page:
-                    texte_complet += texte_page + "\n"
+        with fitz.open(chemin_pdf) as doc:
+            for page in doc:
+                texte_complet += page.get_text("text", sort=True) + "\n"
+            return texte_complet
         return texte_complet
     except Exception as e:
         print(red(f"❌ Impossible de lire {chemin_pdf}: {e}"))
@@ -63,19 +62,19 @@ def evaluer_cv(cv_text):
     Copie-colle EXACTEMENT le formulaire ci-dessous et remplace les [X] par les notes et [...] par ton analyse (2 phrases max).
 
     Recherche (Nombre, QUALITÉ et prestige des publications. Valorise FORTEMENT les revues internationales comme Q1/Q2. Pénalise FORTEMENT les profils limités au Q3/Q4. Adéquation profil, colloques, projets):
-    - Note: [X]/40
+    - Note: X/40
     - Analyse: [...]
 
     Enseignement (Adéquation profil, volume, création de contenus, encadrement. Ajuste tes attentes si c'est un profil junior, mais évalue factuellement ce qui est fait):
-    - Note: [X]/40
+    - Note: X/40
     - Analyse: [...]
 
     Qualité du dossier (Clarté, rigueur, qualité du français. Ignore les bugs de l'OCR):
-    - Note: [X]/10
+    - Note: X/10
     - Analyse: [...]
 
     Formation initiale (Qualité de la formation, adéquation au profil Génie Civil / Mécanique):
-    - Note: [X]/10
+    - Note: X/10
     - Analyse: [...]
 
     Points forts: [...]
@@ -89,7 +88,7 @@ def evaluer_cv(cv_text):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            options={"temperature": 0.15},
+            options={"temperature": 0.75},
         )
 
         analyse = response["message"]["content"].strip()
@@ -159,6 +158,8 @@ def main():
     for nom_fichier in fichiers_pdf:
         chemin_complet = os.path.join(dossier_data, nom_fichier)
         print(f"Analyse de : {nom_fichier}...")
+        import gc
+        gc.collect()
 
         texte = extraire_texte_pdf(chemin_complet)
         if texte:
